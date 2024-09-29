@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmLink | Cozy URL Shortener</title>
+    <style>
+        :root {
+            --bg-color: #87CEEB;
+            --text-color: #4A2511;
+            --accent-color: #FF6B6B;
+            --secondary-color: #4CAF50;
+            --border-color: #8B4513;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 48px;
+            text-align: center;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .tagline {
+            font-size: 24px;
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        input, button {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+        }
+        input {
+            flex-grow: 1;
+            margin-right: 10px;
+            background-color: #FFF8DC;
+        }
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #FF8C8C;
+            transform: scale(1.05);
+        }
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #result a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .grid-header, .grid-item {
+            background-color: #FFF8DC;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            text-align: center;
+        }
+        .grid-header {
+            font-weight: bold;
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .animal {
+            position: fixed;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .animal:hover {
+            transform: scale(1.1);
+        }
+        #chicken {
+            bottom: 20px;
+            left: 20px;
+            animation: walk 20s linear infinite;
+        }
+        #cow {
+            top: 50px;
+            right: 20px;
+            animation: float 5s ease-in-out infinite;
+        }
+        #pig {
+            bottom: 100px;
+            right: 100px;
+            animation: bounce 3s ease-in-out infinite;
+        }
+        #speech-bubble {
+            position: fixed;
+            background-color: white;
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px;
+            font-size: 16px;
+            max-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700;
+            top: -10px;
+            opacity: 0;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        @keyframes walk {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+        .cloud {
+            position: fixed;
+            opacity: 0.7;
+            animation: drift linear infinite;
+        }
+        #cloud1 { top: 10%; left: 0; animation-duration: 60s; }
+        #cloud2 { top: 30%; left: 0; animation-duration: 80s; }
+        @keyframes drift {
+            from { transform: translateX(-100px); }
+            to { transform: translateX(calc(100vw + 100px)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FarmLink</h1>
+        <p class="tagline">Grow your links in our cozy digital farm! UwU</p>
+        <div class="input-group">
+            <input type="text" id="longURL" placeholder="Plant your long URL here">
+            <button onclick="shortenURL()">Harvest Short URL</button>
+        </div>
+        <div id="result"></div>
+
+        <div class="grid-container" id="linkGrid">
+            <div class="grid-header">Short Code</div>
+            <div class="grid-header">Original URL</div>
+            <div class="grid-header">Visits</div>
+        </div>
+    </div>
+
+    <svg class="animal" id="chicken" width="50" height="50" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="#F5DEB3" />
+        <circle cx="35" cy="40" r="5" fill="black" />
+        <path d="M 60 60 Q 50 70 40 60" fill="none" stroke="#FF6347" stroke-width="3" />
+    </svg>
+
+    <svg class="animal" id="cow" width="70" height="70" viewBox="0 0 100 100">
+        <rect x="10" y="10" width="80" height="60" rx="30" fill="#F4A460" />
+        <circle cx="30" cy="30" r="5" fill="black" />
+        <circle cx="70" cy="30" r="5" fill="black" />
+        <rect x="40" y="50" width="20" height="30" fill="#F4A460" />
+    </svg>
+
+    <svg class="animal" id="pig" width="60" height="60" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="#FFC0CB" />
+        <circle cx="35" cy="40" r="5" fill="black" />
+        <circle cx="65" cy="40" r="5" fill="black" />
+        <circle cx="50" cy="55" r="10" fill="#FF69B4" />
+    </svg>
+
+    <div id="speech-bubble"></div>
+    <div id="confetti"></div>
+
+    <svg class="cloud" id="cloud1" width="100" height="50" viewBox="0 0 100 50">
+        <path d="M10 35 Q25 25 40 35 Q60 15 80 35 Q95 25 100 40 L100 50 L0 50 Z" fill="white" />
+    </svg>
+
+    <svg class="cloud" id="cloud2" width="120" height="60" viewBox="0 0 120 60">
+        <path d="M10 45 Q30 30 50 45 Q75 20 100 45 Q115 30 120 50 L120 60 L0 60 Z" fill="white" />
+    </svg>
+
+    <script>
+        function updateLinkGrid() {
+            fetch('/manage')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const gridItems = doc.querySelectorAll('.grid-item');
+                const grid = document.getElementById('linkGrid');
+                grid.innerHTML = `
+                    <div class="grid-header">Short Code</div>
+                    <div class="grid-header">Original URL</div>
+                    <div class="grid-header">Visits</div>
+                `;
+                for (let i = 0; i < gridItems.length; i += 4) {
+                    grid.innerHTML += `
+                        <div class="grid-item">${gridItems[i].textContent}</div>
+                        <div class="grid-item">${gridItems[i+2].textContent}</div>
+                        <div class="grid-item">${gridItems[i+3].textContent}</div>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error updating link grid:', error));
+        }
+
+        function shortenURL() {
+            const longURL = document.getElementById('longURL').value;
+            fetch('/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${encodeURIComponent(longURL)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(shortURL => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `Your harvested URL: <a href="${shortURL}" target="_blank">${shortURL}</a>`;
+                resultDiv.style.display = 'block';
+                showAnimalGossip(longURL, shortURL);
+                updateLinkGrid(); // Update the grid after shortening
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error shortening URL. Please try again.');
+            });
+        }
+
+        // Call updateLinkGrid immediately and then every 5 seconds
+        updateLinkGrid();
+        setInterval(updateLinkGrid, 5000);
+
+        const animals = document.querySelectorAll('.animal');
+        const speechBubble = document.getElementById('speech-bubble');
+        const confettiContainer = document.getElementById('confetti');
+
+        const animalSounds = {
+            chicken: ["Cluck cluck!", "Bawk bawk!", "Egg-cellent day!"],
+            cow: ["Moooooo!", "Got milk?", "Udderly fantastic!"],
+            pig: ["Oink oink!", "Sooie!", "Hog wild!"]
+        };
+
+        const animalGossip = {
+            chicken: [
+                "Heard about that new link? Egg-citing stuff!",
+                "Another link in the coop! Clucking amazing!",
+                "That URL is shorter than my tail feathers!"
+            ],
+            cow: [
+                "Moo-ve over, we've got a new short link!",
+                "This link is cream of the crop!",
+                "Holy cow! That's one short URL!"
+            ],
+            pig: [
+                "Oink-credible! A new link just rolled in the mud!",
+                "This little piggy went to a short URL!",
+                "Sow awesome! Another link to root about!"
+            ]
+        };
+
+        function showAnimalGossip(longURL, shortURL) {
+            const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+            const animalType = randomAnimal.id;
+            const gossip = animalGossip[animalType][Math.floor(Math.random() * animalGossip[animalType].length)];
+            
+            const rect = randomAnimal.getBoundingClientRect();
+            speechBubble.style.left = `${rect.left}px`;
+            speechBubble.style.top = `${rect.top - 60}px`;
+            speechBubble.textContent = gossip;
+            speechBubble.style.display = 'block';
+
+            setTimeout(() => {
+                speechBubble.style.display = 'none';
+            }, 5000);
+
+            createConfetti();
+        }
+
+        animals.forEach(animal => {
+            animal.addEventListener('click', (e) => {
+                const rect = animal.getBoundingClientRect();
+                const animalType = animal.id;
+                const sound = animalSounds[animalType][Math.floor(Math.random() * animalSounds[animalType].length)];
+                
+                speechBubble.style.left = `${rect.left}px`;
+                speechBubble.style.top = `${rect.top - 60}px`;
+                speechBubble.textContent = sound;
+                speechBubble.style.display = 'block';
+
+                setTimeout(() => {
+                    speechBubble.style.display = 'none';
+                }, 2000);
+
+                if (Math.random() < 0.2) { // 20% chance for confetti
+                    createConfetti();
+                }
+            });
+        });
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animation = `confetti-fall ${3 + Math.random() * 2}s linear forwards`;
+                confettiContainer.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        let clickCount = 0;
+        document.addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 10) {
+                document.body.style.fontFamily = '"Comic Sans MS", cursive, sans-serif';
+                alert("Congratulations! You've unlocked the secret Comic Sans mode!");
+            }
+        });
+    </script>
+</body>
+</html>

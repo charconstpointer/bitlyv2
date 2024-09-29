@@ -1,0 +1,23 @@
+# Base URL
+BASE_URL="http://localhost:8080"
+
+# 1. Shorten a URL
+curl -X POST -d "url=https://sliwinski.media/en/projects" $BASE_URL/shorten
+
+# 2. Redirect using a short code (replace SHORTCODE with an actual short code)
+curl -i -X GET $BASE_URL/SHORTCODE
+
+# 3. Get visit count for a short URL (replace SHORTCODE with an actual short code)
+curl -X GET $BASE_URL/visits/SHORTCODE
+
+# 4. Try to shorten a URL with GET method (should fail)
+curl -X GET "$BASE_URL/shorten?url=https://www.example.com"
+
+# 5. Try to shorten a URL without providing a URL (should fail)
+curl -X POST $BASE_URL/shorten
+
+# 6. Try to access a non-existent short URL (should fail)
+curl -i -X GET $BASE_URL/nonexistent
+
+# 7. Try to get visits for a non-existent short URL
+curl -X GET $BASE_URL/visits/nonexistent
